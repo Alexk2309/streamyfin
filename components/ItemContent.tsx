@@ -33,8 +33,13 @@ import { ItemHeader } from "./ItemHeader";
 import { MediaSourceSelector } from "./MediaSourceSelector";
 import { MoreMoviesWithActor } from "./MoreMoviesWithActor";
 
-export const ItemContent: React.FC<{ item: BaseItemDto }> = React.memo(
-  ({ item }) => {
+interface ItemContentProps {
+  item: BaseItemDto;
+  isOffline?: boolean;
+}
+
+export const ItemContent: React.FC<ItemContentProps> = React.memo(
+  ({ item, isOffline = false }) => {
     const [api] = useAtom(apiAtom);
     const { setPlaySettings, playUrl, playSettings } = usePlaySettings();
     const [settings] = useSettings();
@@ -60,7 +65,7 @@ export const ItemContent: React.FC<{ item: BaseItemDto }> = React.memo(
           subtitleIndex,
         });
 
-        if (!mediaSource) {
+        if (!mediaSource && !isOffline) {
           Alert.alert("Error", "No media source found for this item.");
           navigation.goBack();
         }
@@ -133,11 +138,14 @@ export const ItemContent: React.FC<{ item: BaseItemDto }> = React.memo(
     useImageColors({ item });
 
     useEffect(() => {
+      console.log("move");
       navigation.setOptions({
         headerRight: () =>
           item && (
             <View className="flex flex-row items-center space-x-2">
-              <Chromecast background="blur" width={22} height={22} />
+              {!isOffline && (
+                <Chromecast background="blur" width={22} height={22} />
+              )}
               {item.Type !== "Program" && (
                 <View className="flex flex-row items-center space-x-2">
                   <DownloadItem item={item} />
@@ -147,7 +155,7 @@ export const ItemContent: React.FC<{ item: BaseItemDto }> = React.memo(
             </View>
           ),
       });
-    }, [item]);
+    }, [item, isOffline]);
 
     useEffect(() => {
       // If landscape
@@ -217,17 +225,21 @@ export const ItemContent: React.FC<{ item: BaseItemDto }> = React.memo(
               <ItemHeader item={item} className="mb-4" />
               {item.Type !== "Program" && (
                 <View className="flex flex-row items-center justify-start w-full h-16">
-                  <BitrateSelector
-                    className="mr-1"
-                    onChange={(val) => setMaxBitrate(val)}
-                    selected={maxBitrate}
-                  />
-                  <MediaSourceSelector
-                    className="mr-1"
-                    item={item}
-                    onChange={setSelectedMediaSource}
-                    selected={selectedMediaSource}
-                  />
+                  {!isOffline && (
+                    <>
+                      <BitrateSelector
+                        className="mr-1"
+                        onChange={(val) => setMaxBitrate(val)}
+                        selected={maxBitrate}
+                      />
+                      <MediaSourceSelector
+                        className="mr-1"
+                        item={item}
+                        onChange={setSelectedMediaSource}
+                        selected={selectedMediaSource}
+                      />
+                    </>
+                  )}
                   {selectedMediaSource && (
                     <>
                       <AudioTrackSelector
@@ -250,11 +262,15 @@ export const ItemContent: React.FC<{ item: BaseItemDto }> = React.memo(
             </View>
 
             {item.Type === "Episode" && (
-              <SeasonEpisodesCarousel item={item} loading={loading} />
+              <SeasonEpisodesCarousel
+                item={item}
+                loading={loading}
+                isOffline={isOffline}
+              />
             )}
 
             <OverviewText text={item.Overview} className="px-4 my-4" />
-            {item.Type !== "Program" && (
+            {!isOffline && item.Type !== "Program" && (
               <>
                 <CastAndCrew item={item} className="mb-4" loading={loading} />
 

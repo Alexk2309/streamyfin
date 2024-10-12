@@ -14,6 +14,8 @@ export const useFileOpener = () => {
   const openFile = useCallback(async (item: BaseItemDto) => {
     const directory = FileSystem.documentDirectory;
 
+    console.log("Opening file", item);
+
     if (!directory) {
       throw new Error("Document directory is not available");
     }

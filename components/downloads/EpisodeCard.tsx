@@ -34,6 +34,7 @@ export const EpisodeCard: React.FC<EpisodeCardProps> = ({ item }) => {
   }, []);
 
   const handleOpenFile = useCallback(() => {
+    console.log("Opening file", item);
     openFile(item);
   }, [item, openFile]);
 

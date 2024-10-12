@@ -37,6 +37,8 @@ export const ScrollingCollectionList: React.FC<Props> = ({
 
   if (disabled || !title) return null;
 
+  // console.log("data", data);
+
   return (
     <View {...props} className="">
       <Text className="px-4 text-lg font-bold mb-2 text-neutral-100">

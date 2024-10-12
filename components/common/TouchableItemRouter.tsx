@@ -8,7 +8,11 @@ interface Props extends TouchableOpacityProps {
   item: BaseItemDto;
 }
 
-export const itemRouter = (item: BaseItemDto, from: string) => {
+export const itemRouter = (
+  item: BaseItemDto,
+  from: string,
+  isFromDownloads: boolean
+) => {
   if (item.CollectionType === "livetv") {
     return `/(auth)/(tabs)/${from}/livetv`;
   }
@@ -45,6 +49,10 @@ export const itemRouter = (item: BaseItemDto, from: string) => {
     return `/(auth)/(tabs)/(libraries)/${item.Id}`;
   }
 
+  if (isFromDownloads) {
+    return `/(auth)/(tabs)/${from}/downloads/page`;
+  }
+
   return `/(auth)/(tabs)/${from}/items/page?id=${item.Id}`;
 };
 
@@ -56,14 +64,19 @@ export const TouchableItemRouter: React.FC<PropsWithChildren<Props>> = ({
   const router = useRouter();
   const segments = useSegments();
 
+  const isFromDownloads = segments[3] === "downloads";
+
   const from = segments[2];
+
+  // console.log("Segments:", segments);
 
   if (from === "(home)" || from === "(search)" || from === "(libraries)")
     return (
       <TouchableOpacity
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          const url = itemRouter(item, from);
+          const url = itemRouter(item, from, isFromDownloads);
+          console.log("Navigating to URL:", url); // Log the generated URL
           // @ts-ignore
           router.push(url);
         }}

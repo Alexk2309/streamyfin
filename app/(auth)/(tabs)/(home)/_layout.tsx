@@ -36,7 +36,7 @@ export default function IndexLayout() {
         }}
       />
       <Stack.Screen
-        name="downloads"
+        name="downloads/index"
         options={{
           title: "Downloads",
         }}
