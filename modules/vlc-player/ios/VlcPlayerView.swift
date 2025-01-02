@@ -1,5 +1,5 @@
 import ExpoModulesCore
-import MobileVLCKit
+import VLCKit
 import UIKit
 
 class VlcPlayerView: ExpoView {
@@ -124,13 +124,13 @@ class VlcPlayerView: ExpoView {
             let media: VLCMedia
             if isNetwork {
                 print("Loading network file: \(uri)")
-                media = VLCMedia(url: URL(string: uri)!)
+                media = VLCMedia(url: URL(string: uri)!)!
             } else {
                 print("Loading local file: \(uri)")
                 if uri.starts(with: "file://"), let url = URL(string: uri) {
-                    media = VLCMedia(url: url)
+                    media = VLCMedia(url: url)!
                 } else {
-                    media = VLCMedia(path: uri)
+                    media = VLCMedia(path: uri)!
                 }
             }
 
@@ -148,27 +148,29 @@ class VlcPlayerView: ExpoView {
     }
 
     @objc func setAudioTrack(_ trackIndex: Int) {
-        self.mediaPlayer?.currentAudioTrackIndex = Int32(trackIndex)
+        // self.mediaPlayer?.currentAudioTrackIndex = Int32(trackIndex)
     }
 
     @objc func getAudioTracks() -> [[String: Any]]? {
-        guard let trackNames = mediaPlayer?.audioTrackNames,
-            let trackIndexes = mediaPlayer?.audioTrackIndexes
-        else {
-            return nil
-        }
+        // guard let trackNames = mediaPlayer?.audioTrackNames,
+        //     let trackIndexes = mediaPlayer?.audioTrackIndexes
+        // else {
+        //     return nil
+        // }
 
-        return zip(trackNames, trackIndexes).map { name, index in
-            return ["name": name, "index": index]
-        }
+        // return zip(trackNames, trackIndexes).map { name, index in
+        //     return ["name": name, "index": index]
+        // }
+
+        return []
     }
 
     @objc func setSubtitleTrack(_ trackIndex: Int) {
-        print("Debug: Attempting to set subtitle track to index: \(trackIndex)")
-        self.mediaPlayer?.currentVideoSubTitleIndex = Int32(trackIndex)
-        print(
-            "Debug: Current subtitle track index after setting: \(self.mediaPlayer?.currentVideoSubTitleIndex ?? -1)"
-        )
+        // print("Debug: Attempting to set subtitle track to index: \(trackIndex)")
+        // self.mediaPlayer?.currentVideoSubTitleIndex = Int32(trackIndex)
+        // print(
+        //     "Debug: Current subtitle track index after setting: \(self.mediaPlayer?.currentVideoSubTitleIndex ?? -1)"
+        // )
     }
 
     @objc func setSubtitleURL(_ subtitleURL: String, name: String) {
@@ -192,48 +194,54 @@ class VlcPlayerView: ExpoView {
             return nil
         }
 
-        let count = mediaPlayer.numberOfSubtitlesTracks
-        print("Debug: Number of subtitle tracks: \(count)")
+        var textTracks = mediaPlayer.textTracks
 
-        guard count > 0 else {
-            return nil
-        }
+        print("Debug: Text tracks: \(textTracks)")
 
         var tracks: [[String: Any]] = []
 
-        if let names = mediaPlayer.videoSubTitlesNames as? [String],
-            let indexes = mediaPlayer.videoSubTitlesIndexes as? [NSNumber]
-        {
-            for (index, name) in zip(indexes, names) {
-                if let customSubtitle = customSubtitles.first(where: { $0.internalName == name }) {
-                    tracks.append(["name": customSubtitle.originalName, "index": index.intValue])
-                } else {
-                    tracks.append(["name": name, "index": index.intValue])
-                }
-            }
-        }
+        // let count = mediaPlayer.numberOfSubtitlesTracks
+        // print("Debug: Number of subtitle tracks: \(count)")
 
-        print("Debug: Subtitle tracks: \(tracks)")
+        // guard count > 0 else {
+        //     return nil
+        // }
+
+        // var tracks: [[String: Any]] = []
+
+        // if let names = mediaPlayer.videoSubTitlesNames as? [String],
+        //     let indexes = mediaPlayer.videoSubTitlesIndexes as? [NSNumber]
+        // {
+        //     for (index, name) in zip(indexes, names) {
+        //         if let customSubtitle = customSubtitles.first(where: { $0.internalName == name }) {
+        //             tracks.append(["name": customSubtitle.originalName, "index": index.intValue])
+        //         } else {
+        //             tracks.append(["name": name, "index": index.intValue])
+        //         }
+        //     }
+        // }
+
+        // print("Debug: Subtitle tracks: \(tracks)")
         return tracks
     }
 
     private func setSubtitleTrackByName(_ trackName: String) {
-        guard let mediaPlayer = self.mediaPlayer else { return }
+        // guard let mediaPlayer = self.mediaPlayer else { return }
 
-        // Get the subtitle tracks and their indexes
-        if let names = mediaPlayer.videoSubTitlesNames as? [String],
-            let indexes = mediaPlayer.videoSubTitlesIndexes as? [NSNumber]
-        {
-            for (index, name) in zip(indexes, names) {
-                if name.starts(with: trackName) {
-                    let trackIndex = index.intValue
-                    print("Track Index setting to: \(trackIndex)")
-                    setSubtitleTrack(trackIndex)
-                    return
-                }
-            }
-        }
-        print("Track not found for name: \(trackName)")
+        // // Get the subtitle tracks and their indexes
+        // if let names = mediaPlayer.videoSubTitlesNames as? [String],
+        //     let indexes = mediaPlayer.videoSubTitlesIndexes as? [NSNumber]
+        // {
+        //     for (index, name) in zip(indexes, names) {
+        //         if name.starts(with: trackName) {
+        //             let trackIndex = index.intValue
+        //             print("Track Index setting to: \(trackIndex)")
+        //             setSubtitleTrack(trackIndex)
+        //             return
+        //         }
+        //     }
+        // }
+        // print("Track not found for name: \(trackName)")
     }
 
     @objc func stop(completion: (() -> Void)? = nil) {
@@ -392,9 +400,7 @@ extension VLCMediaPlayerState {
         case .playing: return "Playing"
         case .paused: return "Paused"
         case .stopped: return "Stopped"
-        case .ended: return "Ended"
         case .error: return "Error"
-        case .esAdded: return "ESAdded"
         @unknown default: return "Unknown"
         }
     }
